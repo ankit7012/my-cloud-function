@@ -1,13 +1,20 @@
 steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['secrets', 'access', 'gcloud-service-key', '--format=value']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
-  env:
-  - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/gcloud-service-key.json'
+  args:
+  - '-c'
+  - |
+    # Fetch the service account key from Secret Manager and save it to a file
+    gcloud secrets versions access latest --secret=gcloud-service-key > /workspace/gcloud-service-key.json
+    export GOOGLE_APPLICATION_CREDENTIALS=/workspace/gcloud-service-key.json
 
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['functions', 'deploy', 'helloWorld', '--runtime', 'nodejs14', '--trigger-http', '--allow-unauthenticated', '--region', 'us-central1']
-  env:
-  - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/gcloud-service-key.json'
+    # Deploy the Cloud Function
+    gcloud functions deploy helloWorld \
+      --runtime nodejs14 \
+      --trigger-http \
+      --allow-unauthenticated \
+      --region us-central1
 
+options:
+  logging: CLOUD_LOGGING_ONLY  # Set logging to cloud logging only
 timeout: 1200s
