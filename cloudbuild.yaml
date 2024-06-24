@@ -1,0 +1,7 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'helloWorld', '--runtime', 'nodejs14', '--trigger-http', '--allow-unauthenticated', '--region', 'us-central1']
+  env:
+  - 'GOOGLE_APPLICATION_CREDENTIALS=/workspace/gcloud-service-key.json'
+
+timeout: 1200s
